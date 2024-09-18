@@ -15,6 +15,10 @@
             font-size: 24px; /* ha un font size di 24 pixel */
             font-weight: bold; /* ha lo spessore grassetto */
         }
+        #even-odd { /* all'id even-odd verranno applicati questi stili */
+            margin-top: 10px; /* even-odd ha un margine superiore di 10 pixel */
+            font-size: 20px; /* ha un font size di 20 pixel */
+        }
         #generate-button { /* all'id generate-button verranno applicati questi stili  */
             padding: 10px 20px; /* generate-button ha un padding di 10 pixel e 20 pixel. padding --> distanza tra contenuto dell'elemento e il suo bordo. Quando ha 2 valori il primo è alto e basso e il secondo è destra e sinistra */
             font-size: 16px; /* ha una dimensione font di 16 pixel */
@@ -26,6 +30,7 @@
     <h1>Generatore di Numeri Casuali</h1> <!--è il titolo principale della pagina. Ce n'è può essere uno solo per pagina-->
     <button id="generate-button">Genera Numero Casuale</button> <!--un pulsante con id generate-button con testo al suo interno "genera numero casuale"-->
     <div id="numbers"></div> <!--div vuoto con id numbers dove verrà visualizzato il numero casuale generato-->
+    <div id="pari-dispari"></div> <!-- div vuoto per visualizzare se il numero è pari o dispari -->
 
     <script> // qui vengono elencate le funzioni in JavaScript
         
@@ -36,8 +41,17 @@
         // Funzione per aggiornare il contenuto della pagina
         function updateNumbers() {
             const numbersDiv = document.getElementById('numbers'); //recupera l'elemento con id numbers
+            const recuperaDiv = document.getElementById('pari-dispari'); // recupera l'elemento per pari/dispari
             const randomNumber = getRandomNumber(); // genera un numero con la funzione get random number
+            
             numbersDiv.textContent = `Numero Casuale: ${randomNumber}`; // aggiorna il contenuto del div con il numero casuale generato
+            
+            // Controlla se il numero è pari o dispari
+            if (randomNumber % 2 === 0) {
+                recuperaDiv.textContent = 'Il numero è pari.';
+            } else {
+                recuperaDiv.textContent = 'Il numero è dispari.';
+            }
         } 
 
         // Aggiunge un event listener al pulsante
@@ -46,4 +60,4 @@
 </body> <!-- tag che chiude il body -->
 </html> <!--tag che chiude la pagina-->
 
-<!-- Mattia Grigollo - 4A info-->
+

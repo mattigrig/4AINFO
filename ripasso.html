@@ -10,13 +10,19 @@
             text-align: center;
             margin: 20px;
         }
+        #numbers, #even-odd, #prime-result {
+            width: 200px; /* Larghezza del box */
+            height: 200px; /* Altezza del box */
+            border: 2px solid red; /* Bordo rosso */
+            margin: 10px auto; /* Centra i box */
+            padding: 10px; /* Spaziatura interna */
+            box-sizing: border-box; /* Include il bordo e il padding nelle dimensioni */
+        }
         #numbers {
-            margin-top: 20px;
             font-size: 24px;
             font-weight: bold;
         }
-        #even-odd {
-            margin-top: 10px;
+        #even-odd, #prime-result {
             font-size: 20px;
         }
         #generate-button, #check-prime-button {
@@ -81,3 +87,5 @@
     </script>
 </body>
 </html>
+
+

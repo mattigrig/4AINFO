@@ -1,0 +1,49 @@
+<!DOCTYPE html> <!-- dichiara il documento di tipo HTML-->
+<html lang="en"> <!-- definisce la lingua del documento, in questo caso inglese-->
+<head>  <!--contiene i meta dati del file, il titolo della nostra pagine e se inseriti gli stili in css-->
+    <meta charset="UTF-8"> <!--specifica la codifica utilizzata-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--adatta la pagina al dispositivo utilizzato-->
+    <title>Generatore di Numeri Casuali</title> <!-- contiene il titolo della pagina-->
+    <style> /* contiene gli stili da iniettare nell'html */
+        body { /* dentro il body verranno inseriti questi stili */
+            font-family: Arial, sans-serif; /*viene specificato la famiglia font, quindi arial come prima opzione e se non fosse disponibile utilizza il sans-serif*/
+            text-align: center; /* allinea il testo al centro */
+            margin: 20px; /* imposta il margine a 20 pixel. margin --> distanza tra bordo di un elemento ed altri elementi */
+        }
+        #numbers { /* all'id numbers verranno applicati questi stili */
+            margin-top: 20px; /* numbers ha un margine superiore di 20 pixel */
+            font-size: 24px; /* ha un font size di 24 pixel */
+            font-weight: bold; /* ha lo spessore grassetto */
+        }
+        #generate-button { /* all'id generate-button verranno applicati questi stili  */
+            padding: 10px 20px; /* generate-button ha un padding di 10 pixel e 20 pixel. padding --> distanza tra contenuto dell'elemento e il suo bordo. Quando ha 2 valori il primo è alto e basso e il secondo è destra e sinistra */
+            font-size: 16px; /* ha una dimensione font di 16 pixel */
+            cursor: pointer; /* il cursore quando andrà sopra il bottone diventerà un puntatore */
+        }
+    </style> <!--chiude il capitolo stili-->
+</head> <!--chiude l'head-->
+<body> <!--contiene il contenuto della pagina-->
+    <h1>Generatore di Numeri Casuali</h1> <!--è il titolo principale della pagina. Ce n'è può essere uno solo per pagina-->
+    <button id="generate-button">Genera Numero Casuale</button> <!--un pulsante con id generate-button con testo al suo interno "genera numero casuale"-->
+    <div id="numbers"></div> <!--div vuoto con id numbers dove verrà visualizzato il numero casuale generato-->
+
+    <script> // qui vengono elencate le funzioni in JavaScript
+        
+        function getRandomNumber() { // Funzione per generare un numero casuale tra 1 e 100
+            return Math.floor(Math.random() * 100) + 1; // genera un numero casuale arrotondato al più basso tra 0 e 100 a cui viene sommato 1 per avere un intervallo tra 1 e 100
+        }
+
+        // Funzione per aggiornare il contenuto della pagina
+        function updateNumbers() {
+            const numbersDiv = document.getElementById('numbers'); //recupera l'elemento con id numbers
+            const randomNumber = getRandomNumber(); // genera un numero con la funzione get random number
+            numbersDiv.textContent = `Numero Casuale: ${randomNumber}`; // aggiorna il contenuto del div con il numero casuale generato
+        } 
+
+        // Aggiunge un event listener al pulsante
+        document.getElementById('generate-button').addEventListener('click', updateNumbers); // quando il pulsante viene cliccato, viene aggiornata la visualizzazione con un nuovo numero casuale
+    </script>  <!-- le funzioni javaScript sono finite-->
+</body> <!-- tag che chiude il body -->
+</html> <!--tag che chiude la pagina-->
+
+<!-- Mattia Grigollo - 4A info-->

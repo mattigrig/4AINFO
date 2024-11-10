@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gioco dei Riflessi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="welcomeScreen">
+        <h1>Benvenuto al gioco dei riflessi!</h1>
+        <p>Inserisci il tuo nome per iniziare.</p>
+        <input type="text" id="usernameInput" placeholder="Nome utente">
+        <button onclick="startGame()">Inizia</button>
+    </div>
+
+    <div id="gameScreen" class="hidden">
+        <header>
+            <span id="levelDisplay">Livello: 1</span>
+            <button id="changeDifficulty" onclick="changeDifficulty()">Difficoltà</button>
+            <button id="changeUsername" onclick="changeUsername()"><span id="currentUsername">Nome</span></button>
+        </header>
+        
+        <main>
+            <div id="reactionBox" class="ready" onclick="checkReaction(event)">
+                <div id="targetBox" class="hidden"></div>
+                <span id="reactionText">Are you ready?</span>
+            </div>
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Nome Utente</th>
+                        <th>Tempo di Reazione (ms)</th>
+                    </tr>
+                </thead>
+                <tbody id="timeList"></tbody>
+            </table>
+        </main>
+
+        <div id="levelOverlay" class="hidden">
+            <span id="overlayText"></span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

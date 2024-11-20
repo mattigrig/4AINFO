@@ -4,121 +4,309 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gioco dei Riflessi</title>
-     <style>
+    <style>
         * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
 
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: linear-gradient(to right, #4e54c8, #8f94fb);
-    color: white;
-}
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            color: white;
+        }
 
-.hidden {
-    display: none !important;
-}
+        .hidden {
+            display: none !important;
+        }
 
-#welcomeScreen, #gameScreen {
-    text-align: center;
-    width: 80%;
-    max-width: 500px;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 10px;
-}
+        #welcomeScreen, #gameScreen {
+            text-align: center;
+            width: 80%;
+            max-width: 500px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
 
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-}
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
 
-button {
-    padding: 10px;
-    border: none;
-    border-radius: 15px;
-    background-color: #333;
-    color: white;
-    cursor: pointer;
-}
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 15px;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+        }
 
-button:hover {
-    background-color: #555;
-}
+            button:hover {
+                background-color: #555;
+            }
 
-#reactionBox {
-    margin: 20px auto;
-    width: 300px;
-    height: 300px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: red;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    position: relative;
-    transition: background-color 0.3s ease;
-}
+        #reactionBox {
+            margin: 20px auto;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: red;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
 
-#reactionBox.go {
-    background-color: green;
-}
+        #targetContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
 
-#targetBox {
-    width: 60px; /* Dimensione più piccola */
-    height: 60px; /* Dimensione più piccola */
-    background-color: green;
-    position: absolute;
-    display: none; /* Rende il target invisibile finché non è necessario */
-}
+        .targetBox {
+            width: 60px;
+            height: 60px;
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
 
-#resultsTable {
-    margin-top: 20px;
-    width: 100%;
-    border-collapse: collapse;
-}
+        .targetFirstBox {
+            width: 300px;
+            height: 300px;
+            background-color: gray;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
 
-#resultsTable th, #resultsTable td {
-    padding: 10px;
-    border: 1px solid #ddd;
- 
-    text-align: left;
-}
+        #resultsTable {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-#levelOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 36px;
-    z-index: 10;
-}
+            #resultsTable th, #resultsTable td {
+                padding: 10px;
+                border: 1px solid #ddd;
+                text-align: left;
+            }
 
-#levelOverlay.hidden {
-    display: none;
-}
+        #levelOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            z-index: 10;
+        }
+
+            #levelOverlay.hidden {
+                display: none;
+            }
     </style>
+    <script>
+        let username = "";
+        let level = 1;
+        const maxLevel = 10;
+        const baseTimeLimit = 5000; // Tempo massimo di reazione per il primo livello (5 secondi)
+        const decreaseTimeLevel = 700; // Tempo di decremento del tetto massimo per ogni livello (0.7 secondi)
+        let reactionStartTime;
+        let isReactionTime = false;
 
+        // Funzione per iniziare il gioco e registrare l'utente
+        function startGame() {
+            username = document.getElementById("usernameInput").value || "Giocatore";
+            document.getElementById("currentUsername").innerText = username;
+            document.getElementById("welcomeScreen").classList.add("hidden");
+            document.getElementById("gameScreen").classList.remove("hidden");
+            startLevel();
+        }
+
+        // Funzione per cambiare nome utente
+        function changeUsername() {
+            username = prompt("Inserisci il nuovo nome utente") || username;
+            document.getElementById("currentUsername").innerText = username;
+        }
+
+        // Funzione per iniziare il livello
+        function startLevel() {
+            const targetContainer = document.getElementById("targetContainer");
+            const reactionText = document.getElementById("reactionText");
+            targetContainer.innerHTML = ""; // Resetta i target
+            reactionText.innerText = "Are you ready?";
+            reactionText.style.display = "block"; // Assicura che la scritta sia visibile
+            document.getElementById("levelDisplay").innerText = `Livello: ${level}`;
+            isReactionTime = false;
+
+            // Nascondi "Are you ready?" prima di generare i target
+            setTimeout(() => {
+                reactionText.style.display = "none";
+                let targets = 16;
+                if (level === 1) {
+                    targets = 1;
+                    createFirstTarget(); // Livello 1 
+                }
+                else {
+                    createTargets(); // Livello successivi
+                }
+
+                setTimeout(() => {
+                    isReactionTime = true;
+                    const randomTarget = targetContainer.children[Math.floor(Math.random() * targets)];
+                    randomTarget.style.backgroundColor = "green";
+                    randomTarget.innerText = "GO";
+                    randomTarget.onclick = () => checkReaction(randomTarget);
+                    reactionStartTime = Date.now();
+                }, 0);
+            }, 2000); // "Are you ready?" scompare dopo 2 secondi
+        }
+
+        // Funzione per creare target al livello 1
+        function createFirstTarget() {
+            const targetContainer = document.getElementById("targetContainer");
+            const target = document.createElement("div");
+            target.classList.add("targetFirstBox");
+            target.style.backgroundColor = "green";
+            target.innerText = "GO";
+            target.onclick = () => checkReaction(target);
+            targetContainer.appendChild(target);
+        }
+
+        // Funzione per creare target livelli successivi al primo
+        function createTargets() {
+            const targetContainer = document.getElementById("targetContainer");
+            for (let i = 0; i < 16; i++) {
+                const target = document.createElement("div");
+                target.classList.add("targetBox");
+                targetContainer.appendChild(target);
+            }
+        }
+
+        // Funzione per ottenere una posizione casuale all'interno di un elemento
+        function getRandomPositionWithinBox(box) {
+            const boxRect = box.getBoundingClientRect();
+            const x = Math.random() * (boxRect.width - 60); // Larghezza quadrato - larghezza target
+            const y = Math.random() * (boxRect.height - 60); // Altezza quadrato - altezza target
+            return { x, y };
+        }
+
+        // Funzione per gestire la risposta dell'utente
+        function checkReaction(target) {
+            if (!isReactionTime) return;
+            const reactionTime = Date.now() - reactionStartTime;
+            let maxReactionTime = baseTimeLimit - ((level - 1) * decreaseTimeLevel);
+            if (level >= 6) {
+                maxReactionTime = baseTimeLimit - (4 * decreaseTimeLevel);
+            }
+            if (reactionTime > maxReactionTime) {
+                alert(`Hai superato il tetto massimo di ${(maxReactionTime / 1000)} secondi. Riprova!`);
+                level = 1;
+                document.getElementById("timeList").replaceChildren();
+                startGame();
+            }
+            else {
+                if (target.style.backgroundColor === "green") {
+                    addResultToTable(username, reactionTime);
+                }
+                nextLevel();
+            }
+        }
+
+        // Aggiungi il risultato alla tabella
+        function addResultToTable(name, time) {
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `<td>${name}</td><td>${time} ms</td>`;
+            document.getElementById("timeList").appendChild(newRow);
+        }
+
+        // Passare al livello successivo o terminare il gioco
+        function nextLevel() {
+            level++;
+            if (level > maxLevel) {
+                showFinalResult();
+                alert("Gioco completato!");
+            } else {
+                startLevel();
+            }
+        }
+
+        // Ordina i Risultati e Mostra i Primi 5
+        function showFinalResult() {
+            var bestIndexValues = [];
+            let list = document.getElementById("timeList").childNodes;
+            document.getElementById("timeList").style.display = 'none';
+            for (let i = 0; i < list.length; i++) {
+                let node = list[i];
+                let responseTime = parseInt(node.cells[1].innerText.replace(" ms", ""));
+                if (i === 0) {
+                    bestIndexValues.push(0);
+                }
+                else {
+                    let inserito = false;
+                    for (let k = 0; k < bestIndexValues.length; k++) {
+                        let index = bestIndexValues[k];
+                        let compareTime = parseInt(list[index].cells[1].innerText.replace(" ms", ""));
+                        if (responseTime <= compareTime) {
+                            inserito = true;
+                            bestIndexValues.splice(k, 0, i);
+                            k = bestIndexValues.length;
+                        }
+                    }
+                    if (!inserito) {
+                        bestIndexValues.push(i);
+                    }
+                }
+            }
+
+            for (let i = 0; i < 5; i++) {
+                let index = bestIndexValues[i];
+                let node = list[index];
+                let user = node.cells[0].innerText;
+                let responeTime = node.cells[1].innerText;
+                const newRow = document.createElement("tr");
+                newRow.innerHTML = `<td>${user}</td><td>${responeTime}</td>`;
+                document.getElementById("bestTimeList").appendChild(newRow);
+            }
+            document.getElementById("finalResult").style.display = '';
+            document.getElementById("bestTimeList").style.display = '';
+        }
+
+    </script>
 </head>
 <body>
-   
     <div id="welcomeScreen">
         <h1>Benvenuto al gioco dei riflessi!</h1>
+        <p>Clicca sul quadratino Verde il più velocemente possibile.</p>
+        <p>Ad ogni livello il tempo a disposizione diminuirà.</p>
+        <p>Buona fortuna!!!</p><br />
         <p>Inserisci il tuo nome per iniziare.</p>
         <input type="text" id="usernameInput" placeholder="Nome utente">
         <button onclick="startGame()">Inizia</button>
@@ -127,15 +315,14 @@ button:hover {
     <div id="gameScreen" class="hidden">
         <header>
             <span id="levelDisplay">Livello: 1</span>
-            <button id="changeDifficulty" onclick="changeDifficulty()">Difficoltà</button>
             <button id="changeUsername" onclick="changeUsername()"><span id="currentUsername">Nome</span></button>
         </header>
-        
         <main>
-            <div id="reactionBox" class="ready" onclick="checkReaction(event)">
-                <div id="targetBox" class="hidden"></div>
+            <div id="reactionBox">
+                <div id="targetContainer"></div>
                 <span id="reactionText">Are you ready?</span>
             </div>
+            <span id="finalResult" style="display:none;">Risultati Migliori</span>
             <table id="resultsTable">
                 <thead>
                     <tr>
@@ -144,143 +331,12 @@ button:hover {
                     </tr>
                 </thead>
                 <tbody id="timeList"></tbody>
+                <tbody id="bestTimeList" style="display:none;"></tbody>
             </table>
         </main>
-
         <div id="levelOverlay" class="hidden">
             <span id="overlayText"></span>
         </div>
     </div>
-
-    <script>
-let username = "";
-let level = 1;
-let maxLevel = 10;
-let baseTimeLimit = 5000; // Tempo massimo di reazione per il primo livello (5 secondi)
-let reactionStartTime;
-let isReactionTime = false;
-
-// Funzione per iniziare il gioco e registrare l'utente
-function startGame() {
-    username = document.getElementById("usernameInput").value || "Giocatore";
-    document.getElementById("currentUsername").innerText = username;
-    document.getElementById("welcomeScreen").classList.add("hidden");
-    document.getElementById("gameScreen").classList.remove("hidden");
-    startLevel();
-}
-
-// Funzione per cambiare nome utente
-function changeUsername() {
-    username = prompt("Inserisci il nuovo nome utente") || username;
-    document.getElementById("currentUsername").innerText = username;
-}
-
-// Funzione per cambiare il livello di difficoltà
-function changeDifficulty() {
-    level = parseInt(prompt("Scegli un livello (1-10):")) || level;
-    level = Math.max(1, Math.min(maxLevel, level)); // Limita il livello tra 1 e 10
-    startLevel();
-}
-
-// Funzione per iniziare il livello con logica e timer random
-function startLevel() {
-    document.getElementById("levelDisplay").innerText = `Livello: ${level}`;
-    document.getElementById("reactionBox").classList.remove("go");
-    document.getElementById("reactionText").innerText = "Are you ready?";
-    document.getElementById("targetBox").style.display = "none"; // Nasconde il targetBox
-    isReactionTime = false;
-
-    let waitTime = Math.random() * 3000 + 1000;
-    setTimeout(() => {
-        isReactionTime = true;
-        if (level <= 5) {
-            document.getElementById("reactionBox").classList.add("go");
-            document.getElementById("reactionText").innerText = "GO!";
-        } else {
-            document.getElementById("reactionText").innerText = "";
-            positionTargetBox();
-            document.getElementById("targetBox").style.display = "block";
-        }
-        reactionStartTime = Date.now();
-    }, waitTime);
-}
-
-// Posiziona il box verde in una posizione casuale per i livelli 5-10
-function positionTargetBox() {
-    const reactionBox = document.getElementById("reactionBox");
-    const targetBox = document.getElementById("targetBox");
-
-    // Imposta una dimensione più piccola per il targetBox
-    targetBox.style.width = "60px"; // Dimensione più piccola
-    targetBox.style.height = "60px"; // Dimensione più piccola
-    
-    // Calcola le posizioni massime per il posizionamento casuale
-    const maxLeft = reactionBox.clientWidth - targetBox.clientWidth;
-    const maxTop = reactionBox.clientHeight - targetBox.clientHeight;
-    
-    // Genera posizioni casuali per il quadrato verde
-    const randomLeft = Math.floor(Math.random() * maxLeft);
-    const randomTop = Math.floor(Math.random() * maxTop);
-    
-    // Imposta la posizione del targetBox
-    targetBox.style.left = `${randomLeft}px`;
-    targetBox.style.top = `${randomTop}px`;
-}
-
-// Funzione per controllare il tempo di reazione al click
-function checkReaction(event) {
-    if (!isReactionTime) return;
-
-    let reactionTime = Date.now() - reactionStartTime;
-    let timeLimit = baseTimeLimit - ((level - 1) * 700);
-    
-    if (level > 5 && event.target.id !== "targetBox") return;
-
-    addResultToTable(username, reactionTime);
-
-    isReactionTime = false;
-
-    if (reactionTime <= timeLimit) {
-        nextLevel();
-    } else {
-        alert("Tempo scaduto! Riprova.");
-        startLevel();
-    }
-}
-
-// Aggiunge i risultati alla tabella
-function addResultToTable(name, time) {
-    const newRow = document.createElement("tr");
-    newRow.innerHTML = `<td>${name}</td><td>${time} ms</td>`;
-    document.getElementById("timeList").appendChild(newRow);
-}
-
-// Funzione per passare al livello successivo o terminare il gioco
-function nextLevel() {
-    level++;
-    if (level > maxLevel) {
-        showFinalScreen();
-    } else {
-        showOverlay(`Livello ${level}`);
-        setTimeout(startLevel, 2000);
-    }
-}
-
-// Funzione per mostrare l'overlay del livello con testo
-function showOverlay(text) {
-    const overlay = document.getElementById("levelOverlay");
-    document.getElementById("overlayText").innerText = text;
-    overlay.classList.remove("hidden");
-    setTimeout(() => {
-        overlay.classList.add("hidden");
-    }, 2000);
-}
-
-// Funzione per mostrare la schermata finale con i migliori risultati
-function showFinalScreen() {
-    showOverlay("Congratulazioni!");
-    setTimeout(() => alert("Gioco completato!"), 3000);
-}
-</script>
 </body>
 </html>

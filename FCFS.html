@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistica Interattiva</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #4CAF50;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .stats-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 5px;
+            font-size: 1.1em;
+            width: 200px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 6px 12px;
+            font-size: 1.1em;
+            margin-left: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .comparison-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Confronto Statistiche Array</h1>
+
+    <!-- Input per i due array -->
+    <div>
+        <label for="array1Input">Array 1:</label>
+        <input type="text" id="array1Input" value="3, 4, 2, 5, 1, 6, 4, 2, 7">
+        <br>
+        <label for="array2Input">Array 2:</label>
+        <input type="text" id="array2Input" value="8, 3, 2, 6, 5, 4, 7, 1, 9">
+        <br>
+        <button onclick="compareArrays()">Confronta</button>
+    </div>
+
+    <!-- Risultati per Array 1 -->
+    <div class="stats-container" id="array1Stats">
+        <h2>Statistiche Array 1</h2>
+        <p><strong>Media:</strong> <span id="array1Mean"></span></p>
+        <p><strong>Varianza:</strong> <span id="array1Variance"></span></p>
+        <p><strong>Deviazione Standard:</strong> <span id="array1StdDev"></span></p>
+        <p><strong>Mediana:</strong> <span id="array1Median"></span></p>
+        <p><strong>Moda:</strong> <span id="array1Mode"></span></p>
+    </div>
+
+    <!-- Risultati per Array 2 -->
+    <div class="stats-container" id="array2Stats">
+        <h2>Statistiche Array 2</h2>
+        <p><strong>Media:</strong> <span id="array2Mean"></span></p>
+        <p><strong>Varianza:</strong> <span id="array2Variance"></span></p>
+        <p><strong>Deviazione Standard:</strong> <span id="array2StdDev"></span></p>
+        <p><strong>Mediana:</strong> <span id="array2Median"></span></p>
+        <p><strong>Moda:</strong> <span id="array2Mode"></span></p>
+    </div>
+
+    <!-- Confronto -->
+    <div class="comparison-container">
+        <h2>Confronto</h2>
+        <p id="comparisonResults"></p>
+    </div>
+
+    <script>
+        class Statistics {
+            static mean(array) {
+                if (!array.length) return null;
+                const sum = array.reduce((acc, num) => acc + num, 0);
+                return sum / array.length;
+            }
+
+            static variance(array) {
+                if (!array.length) return null;
+                const mean = this.mean(array);
+                const squaredDiffs = array.map(num => Math.pow(num - mean, 2));
+                return this.mean(squaredDiffs);
+            }
+
+            static standardDeviation(array) {
+                const variance = this.variance(array);
+                return variance !== null ? Math.sqrt(variance) : null;
+            }
+
+            static median(array) {
+                if (!array.length) return null;
+                const sorted = [...array].sort((a, b) => a - b);
+                const mid = Math.floor(sorted.length / 2);
+
+                return sorted.length % 2 === 0
+                    ? (sorted[mid - 1] + sorted[mid]) / 2
+                    : sorted[mid];
+            }
+
+            static mode(array) {
+                if (!array.length) return null;
+                const frequencyMap = {};
+                array.forEach(num => {
+                    frequencyMap[num] = (frequencyMap[num] || 0) + 1;
+                });
+
+                const maxFrequency = Math.max(...Object.values(frequencyMap));
+                const modes = Object.keys(frequencyMap)
+                    .filter(key => frequencyMap[key] === maxFrequency)
+                    .map(Number);
+
+                return modes.length === 1 ? modes[0] : modes;
+            }
+        }
+
+        function calculateStats(array, prefix) {
+            document.getElementById(`${prefix}Mean`).textContent = Statistics.mean(array).toFixed(2);
+            document.getElementById(`${prefix}Variance`).textContent = Statistics.variance(array).toFixed(2);
+            document.getElementById(`${prefix}StdDev`).textContent = Statistics.standardDeviation(array).toFixed(2);
+            document.getElementById(`${prefix}Median`).textContent = Statistics.median(array);
+            document.getElementById(`${prefix}Mode`).textContent = Array.isArray(Statistics.mode(array))
+                ? Statistics.mode(array).join(', ')
+                : Statistics.mode(array);
+        }
+
+        function compareArrays() {
+            const array1 = document.getElementById('array1Input').value.split(',').map(num => parseInt(num.trim(), 10)).filter(num => !isNaN(num));
+            const array2 = document.getElementById('array2Input').value.split(',').map(num => parseInt(num.trim(), 10)).filter(num => !isNaN(num));
+
+            if (!array1.length || !array2.length) {
+                alert('Entrambi gli array devono essere validi!');
+                return;
+            }
+
+            calculateStats(array1, 'array1');
+            calculateStats(array2, 'array2');
+
+            const meanDiff = (Statistics.mean(array1) - Statistics.mean(array2)).toFixed(2);
+            document.getElementById('comparisonResults').textContent = `Differenza Media: ${meanDiff}`;
+        }
+    </script>
+</body>
+</html>

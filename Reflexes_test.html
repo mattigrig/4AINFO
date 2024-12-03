@@ -133,7 +133,9 @@
             }
     </style>
     <script>
+        //Variabili Iniziali
         let username = "";
+        let colorTarget = "green";
         let level = 1;
         const maxLevel = 10;
         const baseTimeLimit = 5000; // Tempo massimo di reazione per il primo livello (5 secondi)
@@ -154,6 +156,11 @@
         function changeUsername() {
             username = prompt("Inserisci il nuovo nome utente") || username;
             document.getElementById("currentUsername").innerText = username;
+        }
+
+        function changeColor() {
+            colorTarget = prompt("Inserisci il nuovo colore dei Target") || colorTarget;
+            document.getElementById("currentColor").innerText = colorTarget;
         }
 
         // Funzione per iniziare il livello
@@ -177,11 +184,11 @@
 
                 setTimeout(() => {
                     isReactionTime = true;
-                    const randomTarget = targetContainer.children[Math.floor(Math.random() * targets)];
-                    randomTarget.style.backgroundColor = "green";
+                    const randomTarget = targetContainer.children[Math.floor(Math.random() * targets)]; //Prende uno dei 16 quadratini in maniera random
+                    randomTarget.style.backgroundColor = colorTarget;
                     randomTarget.innerText = "GO";
-                    randomTarget.onclick = () => checkReaction(randomTarget);
-                    reactionStartTime = Date.now();
+                    randomTarget.onclick = () => checkReaction(randomTarget); // Setta l'evento on click del quadratino verde. Quando viene cliccato chiama la funzione checkReaction
+                    reactionStartTime = Date.now(); //Inizializza il reactionStartTime
                 }, 0);
             }, 2000); // "Are you ready?" scompare dopo 2 secondi
         }
@@ -192,7 +199,7 @@
             for (let i = 0; i < targetsCount; i++) {
                 const target = document.createElement("div");
                 if (targetsCount === 1) {
-                    target.classList.add("targetFirstBox");
+                    target.classList.add("targetFirstBox"); // è al primo livello e la classe targetFirstBox lo fa vedere grande quanto il container
                 }
                 else {
                     target.classList.add("targetBox");
@@ -205,7 +212,7 @@
         function checkReaction(target) {
             if (!isReactionTime) return;
             const reactionTime = Date.now() - reactionStartTime;
-            let maxReactionTime = baseTimeLimit - ((level - 1) * decreaseTimeLevel);
+            let maxReactionTime = baseTimeLimit - ((level - 1) * decreaseTimeLevel); // Calcola il tempo di Reazione Massimo
             if (level >= 6) {
                 maxReactionTime = baseTimeLimit - (4 * decreaseTimeLevel);
             }
@@ -216,8 +223,8 @@
                 startGame();
             }
             else {
-                if (target.style.backgroundColor === "green") {
-                    addResultToTable(username, reactionTime);
+                if (target.style.backgroundColor === colorTarget) {
+                    addResultToTable(username, reactionTime); // Aggiunge il risultato alla tabella
                 }
                 nextLevel();
             }
@@ -246,30 +253,30 @@
             var bestIndexValues = [];
             let list = document.getElementById("timeList").childNodes;
             document.getElementById("timeList").style.display = 'none';
-            for (let i = 0; i < list.length; i++) {
+            for (let i = 0; i < list.length; i++) { //Cicla la lista inizale con tutti e 10 i valori
                 let node = list[i];
-                let responseTime = parseInt(node.cells[1].innerText.replace(" ms", ""));
+                let responseTime = parseInt(node.cells[1].innerText.replace(" ms", "")); //Prende il responseTime di Indice i
                 if (i === 0) {
-                    bestIndexValues.push(0);
+                    bestIndexValues.push(0); //Mette il primo risultato nella Array dei risultati migliori.
                 }
                 else {
-                    let inserito = false;
-                    for (let k = 0; k < bestIndexValues.length; k++) {
+                    let inserito = false; 
+                    for (let k = 0; k < bestIndexValues.length; k++) { //Successivamente cicla la bestIndexValues per vedere se i valori successivi devono essere inserito all'interno o alla fine
                         let index = bestIndexValues[k];
-                        let compareTime = parseInt(list[index].cells[1].innerText.replace(" ms", ""));
+                        let compareTime = parseInt(list[index].cells[1].innerText.replace(" ms", "")); //Prende il responseTime di Indice index della lista iniziale
                         if (responseTime <= compareTime) {
                             inserito = true;
                             bestIndexValues.splice(k, 0, i);
                             k = bestIndexValues.length;
                         }
                     }
-                    if (!inserito) {
+                    if (!inserito) { // Se non ha trovato valori inferiori lo mette alla fine
                         bestIndexValues.push(i);
                     }
                 }
             }
 
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 5; i++) { //Cicla i primi 5 valori della bestIndexValues e crea la tabella dei risultati finali
                 let index = bestIndexValues[i];
                 let node = list[index];
                 let user = node.cells[0].innerText;
@@ -298,6 +305,7 @@
     <div id="gameScreen" class="hidden">
         <header>
             <span id="levelDisplay">Livello: 1</span>
+            <button id="changeColor" onclick="changeColor()"><span id="currentColor">Green</span></button>
             <button id="changeUsername" onclick="changeUsername()"><span id="currentUsername">Nome</span></button>
         </header>
         <main>

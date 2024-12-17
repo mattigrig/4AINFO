@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Estrazione e simulazione probabilistica">
+    <meta name="keywords" content="numeri casuali, javascript, csv, json">
+    <meta name="author" content="Tuo Nome">
+    <title>Simulazione Estrazione</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+
+        button, select, input {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button.selected {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        #output, #statistiche {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simulazione Estrazione Numeri</h1>
+
+    <div class="controls">
+        <button id="pariBtn" onclick="toggleButton('pariBtn')">Pari</button>
+        <button id="dispariBtn" onclick="toggleButton('dispariBtn')">Dispari</button>
+        <label>Decina:
+            <select id="decinaSelect">
+                <option value="0">0-9</option>
+                <option value="1">10-19</option>
+                <option value="2">20-29</option>
+                <option value="3">30-39</option>
+                <option value="4">40-49</option>
+                <option value="5">50-59</option>
+                <option value="6">60-69</option>
+                <option value="7">70-79</option>
+                <option value="8">80-89</option>
+            </select>
+        </label>
+        <label>Puntata Fissa:
+            <input type="number" id="puntataFissa" placeholder="Inserisci un numero" min="1" max="90">
+        </label>
+        <button onclick="salvaCSV()">Salva CSV</button>
+        <button onclick="convertiCSVtoJSON()">Converti in JSON</button>
+    </div>
+
+    <div id="output">Numero estratto: -</div>
+    <div id="statistiche">Calcolo vincite...</div>
+
+    <script>
+        let estrazioni = [];
+        let vincite = 0;
+        let totaleEstratti = 0;
+        let cicloTimer;
+
+        // Funzione per avviare le estrazioni
+        function startEstrazioni() {
+            cicloTimer = setInterval(() => {
+                const numero = Math.floor(Math.random() * 90) + 1;
+                estrazioni.push(numero);
+                totaleEstratti++;
+                document.getElementById("output").textContent = `Numero estratto: ${numero}`;
+                checkVincite(numero);
+
+                if (vincite >= 10) {
+                    clearInterval(cicloTimer);
+                    document.getElementById("statistiche").textContent =
+                        `Dopo ${totaleEstratti} estrazioni, hai ottenuto 10 vincite.`;
+                }
+            }, 2000);
+        }
+
+        // Funzione per controllare le vincite
+        function checkVincite(numero) {
+            const pariSelected = document.getElementById("pariBtn").classList.contains("selected");
+            const dispariSelected = document.getElementById("dispariBtn").classList.contains("selected");
+            const decinaSelected = parseInt(document.getElementById("decinaSelect").value);
+            const puntataFissa = parseInt(document.getElementById("puntataFissa").value);
+
+            let vinto = false;
+
+            if (pariSelected && numero % 2 === 0) vinto = true;
+            if (dispariSelected && numero % 2 !== 0) vinto = true;
+            if (decinaSelected === Math.floor(numero / 10)) vinto = true;
+            if (puntataFissa && numero === puntataFissa) vinto = true;
+
+            if (vinto) vincite++;
+        }
+
+        // Funzione per selezionare/deselezionare i bottoni
+        function toggleButton(id) {
+            const btn = document.getElementById(id);
+            btn.classList.toggle("selected");
+        }
+
+        // Salva le estrazioni in un file CSV
+        function salvaCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Estrazione\n";
+            estrazioni.forEach(num => {
+                csvContent += `${num}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "estrazioni.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Converte il file CSV in JSON
+        function convertiCSVtoJSON() {
+            const json = estrazioni.map((num, index) => ({
+                id: index + 1,
+                estrazione: num,
+            }));
+            console.log("JSON:", JSON.stringify(json, null, 2));
+        }
+
+        // Avvia le estrazioni al caricamento della pagina
+        window.onload = startEstrazioni;
+    </script>
+</body>
+</html>
